@@ -1,19 +1,22 @@
 import heapq
 from collections import Counter
 import os
+from itertools import count
 
 # ========== CLASE NODO PARA EL ÁRBOL DE HUFFMAN ==========
-
+contador_global=count()
 class Nodo:
     def __init__(self, caracter, frecuencia):
         self.caracter = caracter
         self.frecuencia = frecuencia
         self.izquierda = None
         self.derecha = None
+        self.orden= next(contador_global)
 
     def __lt__(self, otro):
+        if self.frecuencia == otro.frecuencia:
+            return self.orden < otro.orden
         return self.frecuencia < otro.frecuencia
-
 # ========== FUNCIONES PARA CONSTRUIR ÁRBOL Y TABLA ==========
 
 def construir_arbol_con_animacion(frecuencias):
@@ -69,7 +72,7 @@ def escribir_archivo_bin(ruta, frecuencias, bytes_codificados, bits_descartados)
         cantidad = len(frecuencias)
         f.write(cantidad.to_bytes(4, byteorder='big'))  # 4 bytes
 
-        for caracter in sorted(frecuencias):
+        for caracter in (frecuencias):
             frecuencia = frecuencias[caracter]
             f.write(caracter.encode('utf-8'))  # 1 byte
             f.write(frecuencia.to_bytes(2, byteorder='big'))  # 2 bytes

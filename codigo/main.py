@@ -125,17 +125,30 @@ def ventana_decodificar():
 
 # === Paso a paso ===
 def ventana_paso_a_paso():
-    archivo = filedialog.askopenfilename(title="Seleccione el archivo binario", filetypes=[("Archivos binarios", "*.bin")])
+    archivo = filedialog.askopenfilename(
+        title="Seleccione el archivo binario", 
+        filetypes=[("Archivos binarios", "*.bin")]
+    )
     if not archivo:
         return
 
     try:
-        frecuencias, bits_descartados, codificados = leer_archivo_binario(archivo)
-        arbol = construir_arbol(frecuencias)
+        # ← Esta línea debe devolver una lista de tuplas [('a', 2), ...]
+        frecuencias_lista, bits_descartados, codificados = leer_archivo_binario(archivo)
+        
+        # ← Construimos el árbol con la lista
+        arbol = construir_arbol(frecuencias_lista)
         bits = bytes_a_bits(codificados, bits_descartados)
-        animar_construccion_y_decodificacion(frecuencias, bits, arbol)
+
+        # ← Transformamos la lista en diccionario solo para la animación
+        frecuencias_dict = dict(frecuencias_lista)
+
+        # ← Usamos el orden correcto de argumentos
+        animar_construccion_y_decodificacion(frecuencias_dict, bits, arbol)
+
     except Exception as e:
         messagebox.showerror("Error", f"Ocurrió un error al mostrar paso a paso: {e}")
+
 
 if __name__ == "__main__":
     iniciar_tkinter()

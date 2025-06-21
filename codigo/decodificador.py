@@ -1,7 +1,8 @@
 import struct
 from collections import Counter
 import heapq
-
+from itertools import count
+contador_global = count()
 # Clase Nodo
 class Nodo:
     def __init__(self, caracter=None, frecuencia=0):
@@ -9,13 +10,14 @@ class Nodo:
         self.frecuencia = frecuencia
         self.izquierda = None
         self.derecha = None
-
+        self.orden = next(contador_global) 
     def __lt__(self, otro):
+        if self.frecuencia == otro.frecuencia:
+            return self.orden < otro.orden
         return self.frecuencia < otro.frecuencia
-
 # Construir el árbol de Huffman desde frecuencias
 def construir_arbol(frecuencias):
-    heap = [Nodo(c, f) for c, f in frecuencias.items()]
+    heap = [Nodo(c, f) for c, f in frecuencias]
     heapq.heapify(heap)
 
     while len(heap) > 1:
@@ -45,12 +47,11 @@ def leer_archivo_binario(path):
         # Leer cantidad de caracteres (4 bytes)
         cantidad = int.from_bytes(f.read(4), "big")
 
-        frecuencias = {}
+        frecuencias = []
         for _ in range(cantidad):
             caracter = f.read(1).decode("utf-8")
             frecuencia = int.from_bytes(f.read(2), "big")
-            frecuencias[caracter] = frecuencia
-
+            frecuencias.append((caracter, frecuencia))
         bits_descartados = int.from_bytes(f.read(1), "big")
         contenido = f.read()
 
@@ -68,6 +69,7 @@ def bytes_a_bits(data, bits_descartados):
 # Función principal
 def decodificar_archivo(path="salida.bin"):
     frecuencias, bits_descartados, codificados = leer_archivo_binario(path)
+    arbol=construir_arbol(frecuencias)
     print("Frecuencias:", frecuencias)
     print("Bits descartados:", bits_descartados)
     print("Bytes codificados (hex):", codificados.hex())
